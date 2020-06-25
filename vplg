@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+
+expac -Ss %P > tempfile1
+
+cat tempfile1 | while read line; do
+for word in $line; do
+    echo $word >> tempfile2
+done; done
+
+for i in `sort -u tempfile2`; do
+    pacman -Ssq `echo $i | sed s'/=\|>\|</ /' | gawk '{print $1}'` > result
+    grep -q "^$(echo $i | sed s'/=\|>\|</ /' | gawk '{print $1}')$" result || echo $i | sed s'/=\|>\|</ /' | gawk '{print $1}' >> tempfile3
+done
+
+sort -u tempfile3 > virtual-packages
+
+rm -rf result tempfile*
